@@ -67,7 +67,7 @@ typedef enum { SND_START, SND_HIT, SND_COIN, SND_JUMP } SFXIndex;
 #define GAPSIZE 4		// gap size in tiles
 #define BOTTOM_FLOOR_Y 2	// offset for bottommost floor
 
-#define MAX_ACTOR 2		// max # of moving actors
+#define MAX_ACTOR 3		// max # of moving actors
 #define SCREEN_Y_BOTTOM 209	// bottom of screen in pixels
 #define ACTOR_MIN_X 1		// leftmost position of actor
 #define ACTOR_MAX_X 28		// rightmost position of actor
@@ -384,31 +384,7 @@ byte iabs(int x) {
 }
 
 
-// check to see if actor collides with any non-player actor
-bool check_collision(Actor* a) {
-  byte i;
-  byte afloor = a->floor;
-  // can't fall through basement
-//  if (a->state == FALLING) return false;
-  // iterate through entire list of actors
-  for (i=1; i<MAX_ACTOR; i++) {
-    Actor* b = &actors[i];
-    // actors must be on same floor and within 8 pixels
-    if (b->onscreen &&
-        afloor == b->floor && 
-        iabs(a->yy - b->yy) < 8 && 
-        iabs(a->x - b->x) < 8) {
-      score --;
-      
-      if(score == 0 ){
-        
-      }
-      return true;
-      
-    }
-  }
-  return false;
-}
+
 
 // creete actors on floor_index, if slot is empty
 void create_actors_on_floor(byte floor_index) {
@@ -614,9 +590,11 @@ void move_player() {
 
 // reward scene when player reaches roof
 void end_scene() {
-
-  actors[0].dir = 1;
-  actors[0].state = CLIMBING;
+   byte i;
+  for (i=1; i<MAX_ACTOR; i++){
+  actors[i].dir = 1;
+  actors[i].state = CLIMBING;
+  }
   refresh_sprites();
   music_stop();
   // wait 1 seconds
@@ -624,6 +602,8 @@ void end_scene() {
   
 
 }
+
+
 void show_end(const byte* pal, const byte* rle){
   
   int x = 0;   // x scroll position
@@ -656,7 +636,37 @@ while(1){
 
 music_play(0);
 }
-
+// check to see if actor collides with any non-player actor
+bool check_collision(Actor* a) {
+  byte i;
+  byte afloor = a->floor;
+  // can't fall through basement
+//  if (a->state == FALLING) return false;
+  // iterate through entire list of actors
+  for (i=1; i<MAX_ACTOR; i++) {
+    Actor* b = &actors[i];
+    // actors must be on same floor and within 8 pixels
+    if (b->onscreen &&
+        afloor == b->floor && 
+        iabs(a->yy - b->yy) < 8 && 
+        iabs(a->x - b->x) < 8) {
+      score --;
+      // put actor at bottom
+     actors[0].state = WALKING;
+  actors[0].name = ACTOR_PLAYER;
+  actors[0].pal = 3;
+  actors[0].floor = 0;
+  actors[0].yy = get_floor_yy(0);
+  
+  set_scroll_pixel_yy(0);
+ 
+      return true;
+      
+    }
+    
+  }
+  return false;
+}
 void show_title_screen(const byte* pal, const byte* rle,const byte* rle2) {
   // disable rendering
   ppu_off();
@@ -736,15 +746,23 @@ void play_scene() {
     // see if the player hit another actor
     if (check_collision(&actors[0])) {
       fall_down(&actors[0]);
-      ////////////////////////////////////////////////////////////////////////
       sfx_play(SND_HIT,0);
       vbright = 7; // flash
+      if(score == 0 ){
+        
+        show_end(end_pal,end_rle);
+        refresh_sprites();
+	end_scene();
+   	
+        
+      }
     }
   
     // flash effect
     if (vbright > 4) {
       pal_bright(--vbright);
     }
+    
   }
   
  
@@ -927,8 +945,9 @@ void main() {
     music_play(0);		// start the music
     play_scene();		// play the level
 
+     
+    	
   }
-  
   
 }
 
