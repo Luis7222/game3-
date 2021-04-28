@@ -183,7 +183,7 @@ const unsigned char personToSave[]={
         128};
 
 ///// GAME LOGIC
-typedef enum FloorItem {ITEM_HEART };
+typedef enum FloorItem { ITEM_NONE, ITEM_MINE, ITEM_HEART, ITEM_POWER };
 
 // struct definition for a single floor
 typedef struct Floor {
@@ -191,7 +191,7 @@ typedef struct Floor {
   int height:5;		// # of tiles to next floor
   int gap:4;		// X position of gap
   int objtype:4;	// item type (FloorItem)
-  int objpos:4;		// X position of object
+  int objpos:10;		// X position of object
 } Floor;
 
 // array of floors
@@ -275,7 +275,7 @@ void draw_floor_line(byte row_height) {
         
      // draw object, if it exists
       if (lev->objtype) {
-        byte ch = lev->objtype*4 + CH_ITEM;
+        byte ch = lev->objtype* + CH_ITEM;
         if (dy == 2) {
           buf[lev->objpos*2] = ch+1;	// bottom-left
           buf[lev->objpos*2+1] = ch+3;	// bottom-right
@@ -478,12 +478,12 @@ void pickup_object(Actor* actor) {
   Floor* floor = &floors[actor->floor];
   byte objtype = floor->objtype;
   // only pick up if there's an object, and if we're walking or standing
-  if (objtype && actor->state <= WALKING) {
+  if (objtype && actor->state <= WALKING && actor->state <= CLIMBING) {
     byte objx = floor->objpos * 16;
     // is the actor close to the object?
     if (actor->x >= objx && actor->x < objx+16) {
       // clear the item from the floor and redraw
-      //floor->objtype = 0;
+      floor->objtype = 0;
       //refresh_floor(actor->floor);
       // did we hit ENEMY OR ITEM?
       if (objtype == ACTOR_ENEMY||ITEM_HEART) {
@@ -793,6 +793,7 @@ const char PALETTE[32] = {
 
 // set up PPU
 void setup_graphics() {
+ 
   
   
   
