@@ -94,7 +94,7 @@ static byte scroll_tile_y = 0;
 static byte player_screen_y = 0;
 
 // score (BCD)
-static byte score = 80;
+static byte score = 5;
 
 // screen flash animation (virtual bright)
 static byte vbright = 4;
@@ -191,7 +191,7 @@ typedef struct Floor {
   int height:5;		// # of tiles to next floor
   int gap:4;		// X position of gap
   int objtype:4;	// item type (FloorItem)
-  int objpos:10;		// X position of object
+  int objpos:1;		// X position of object
 } Floor;
 
 // array of floors
@@ -229,7 +229,7 @@ void make_floors() {
     }
     lev->ypos = y;
     y += lev->height;
-  //  prevlev = lev;
+    prevlev = lev;
   }
   
   // top floor is special
@@ -275,7 +275,7 @@ void draw_floor_line(byte row_height) {
         
      // draw object, if it exists
       if (lev->objtype) {
-        byte ch = lev->objtype* + CH_ITEM;
+        byte ch = lev->objtype*4 + CH_ITEM;
         if (dy == 2) {
           buf[lev->objpos*2] = ch+1;	// bottom-left
           buf[lev->objpos*2+1] = ch+3;	// bottom-right
