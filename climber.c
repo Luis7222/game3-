@@ -683,7 +683,7 @@ void show_title_screen(const byte* pal, const byte* rle,const byte* rle2) {
 }
 
 
-void show_title(const byte* pal, const byte* rle){
+void show_easy(const byte* pal, const byte* rle){
   
   int x = 0;   // x scroll position
   char i;	// actor index
@@ -706,8 +706,78 @@ while(1){
      pad = pad_trigger(i);
    if(pad & PAD_START){
      sfx_play(0,1);
-     if(pad & PAD_RIGHT){
+     
+    
+   break;
+   }
+}
+
+music_play(0);
+}
+
+void show_hard(const byte* pal, const byte* rle){
+  
+  int x = 0;   // x scroll position
+  char i;	// actor index
+  char pad;	// controller flags
+  
+  ppu_off();
+  // set palette, virtual bright to 0 (total black)
+  pal_bg(pal);
+  // unpack nametable into the VRAM
+  vram_adr(0x2000);
+  vram_unrle(rle);
+  // enable rendering
+  ppu_on_all();
+
+
+    
+
+
+while(1){
+     pad = pad_trigger(i);
+   if(pad & PAD_START){
+     sfx_play(0,1);
+     
+   break;
+   }
+}
+
+music_play(0);
+}
+
+void show_title(const byte* pal, const byte* rle){
+  
+  int x = 0;   // x scroll position
+  char i;	// actor index
+  char pad;	// controller flags
+  
+  ppu_off();
+  // set palette, virtual bright to 0 (total black)
+  pal_bg(pal);
+  // unpack nametable into the VRAM
+  vram_adr(0x2000);
+  vram_unrle(rle);
+  // enable rendering
+  ppu_on_all();
+
+
+    
+
+
+while(1){
+     pad = pad_trigger(i); 
+  if(pad & PAD_RIGHT){
+       show_title(hard_pal, hard_rle);
+
      }
+    if(pad & PAD_LEFT){
+       show_title(easy_pal, easy_rle);
+
+     }
+   if(pad & PAD_START){
+     sfx_play(0,1);
+    
     
    break;
    }
@@ -840,77 +910,7 @@ void type_message(const char* charptr) {
 }
 
   
-void show_easy(const byte* pal, const byte* rle){
-  
-  int x = 0;   // x scroll position
-  char i;	// actor index
-  char pad;	// controller flags
-  
-  ppu_off();
-  // set palette, virtual bright to 0 (total black)
-  pal_bg(pal);
-  // unpack nametable into the VRAM
-  vram_adr(0x2000);
-  vram_unrle(rle);
-  // enable rendering
-  ppu_on_all();
 
-
-    
-
-
-while(1){
-     pad = pad_trigger(i);
-   if(pad & PAD_START){
-     sfx_play(0,1);
-     if(pad & PAD_RIGHT){
-     }
-    
-   break;
-   }
-}
-
-music_play(0);
-}
-
-void show_hard(const byte* pal, const byte* rle){
-  
-  int x = 0;   // x scroll position
-  char i;	// actor index
-  char pad;	// controller flags
-  
-  ppu_off();
-  // set palette, virtual bright to 0 (total black)
-  pal_bg(pal);
-  // unpack nametable into the VRAM
-  vram_adr(0x2000);
-  vram_unrle(rle);
-  // enable rendering
-  ppu_on_all();
-
-
-    
-
-
-while(1){
-     pad = pad_trigger(i);
-   if(pad & PAD_START){
-     sfx_play(0,1);
-     if(pad & PAD_RIGHT){
-     }
-    
-   break;
-   }
-}
-
-music_play(0);
-}
-
-
-void difficulty(){
-  
-  
-}
 
 // set up famitone library
 void setup_sounds() {
@@ -919,10 +919,6 @@ void setup_sounds() {
   nmi_set_callback(famitone_update);
 }
 
-// reward scene when player reaches roof
-
-
-
 
 
 // main program
@@ -930,10 +926,11 @@ void main() {
 
 
     show_title(back1_pal, title_rle);
+  
+  
     show_title(easy_pal, easy_rle);
     show_title(hard_pal, hard_rle);
 
-    difficulty();
     show_title_screen(back1_pal, back1_rle,back2_rle);
     setup_sounds();	// init famitone library
     
